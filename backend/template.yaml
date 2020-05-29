@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  bakhtube
+
+  Sample SAM Template for bakhtube
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Runtime: python3.8
+    CodeUri: functions/
+    Timeout: 3
+
+Resources:
+  GetSectionsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      Handler: sections.get
+      Events:
+        GetSections:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /sections
+            Method: get
+      Policies:
+        - AmazonDynamoDBFullAccess
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: sectionTable
+      AttributeDefinitions: 
+        - AttributeName: course
+          AttributeType: S
+        - AttributeName: type
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: course
+          KeyType: HASH
+        - AttributeName: type
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2

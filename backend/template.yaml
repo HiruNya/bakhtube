@@ -11,17 +11,33 @@ Globals:
     Runtime: python3.8
     CodeUri: functions/
     Timeout: 3
+  Api:
+    Domain:
+      DomainName: bakhtube.hiru.dev
+      CertificateArn: arn:aws:acm:ap-southeast-2:627081467109:certificate/4d61b25d-8131-4c4c-aad5-5749f65ea309
 
 Resources:
   GetSectionsFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       Handler: sections.get
       Events:
         GetSections:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /sections
+            Method: get
+      Policies:
+        - AmazonDynamoDBFullAccess
+  GetVideoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: videos.get_video
+      Events:
+        GetVideo:
+          Type: Api
+          Properties:
+            Path: /videos/{id}
             Method: get
       Policies:
         - AmazonDynamoDBFullAccess
@@ -32,13 +48,22 @@ Resources:
       AttributeDefinitions: 
         - AttributeName: course
           AttributeType: S
-        - AttributeName: type
+        - AttributeName: id
           AttributeType: S
       KeySchema: 
         - AttributeName: course
           KeyType: HASH
-        - AttributeName: type
+        - AttributeName: id
           KeyType: RANGE
+#      LocalSecondaryIndexes: # Uncomment when creating from scratch
+#        - IndexName: typeIndex
+#          KeySchema:
+#            - AttributeName: type
+#              KeyType: HASH
+#            - AttributeName: id
+#              KeyType: RANGE
+#          Projection:
+#            ProjectionType: ALL
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2

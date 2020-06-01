@@ -25,7 +25,7 @@ Resources:
         GetSections:
           Type: Api
           Properties:
-            Path: /sections
+            Path: /classes/{class}/sections
             Method: get
       Policies:
         - AmazonDynamoDBFullAccess
@@ -37,7 +37,7 @@ Resources:
         GetVideo:
           Type: Api
           Properties:
-            Path: /videos/{id}
+            Path: /classes/{class}/videos/{id}
             Method: get
       Policies:
         - AmazonDynamoDBFullAccess
@@ -50,20 +50,11 @@ Resources:
           AttributeType: S
         - AttributeName: id
           AttributeType: S
-      KeySchema: 
+      KeySchema:
         - AttributeName: course
           KeyType: HASH
         - AttributeName: id
           KeyType: RANGE
-#      LocalSecondaryIndexes: # Uncomment when creating from scratch
-#        - IndexName: typeIndex
-#          KeySchema:
-#            - AttributeName: type
-#              KeyType: HASH
-#            - AttributeName: id
-#              KeyType: RANGE
-#          Projection:
-#            ProjectionType: ALL
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2

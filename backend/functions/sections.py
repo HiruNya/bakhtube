@@ -6,13 +6,14 @@ from pynamodb.attributes import NumberAttribute, UnicodeAttribute
 
 from config import REGION, SECTION_TABLE_NAME
 from response import ok
-from table import TypeIndex
 
 
-def get(_event, _context) -> Dict:
+def get(event, _context) -> Dict:
     """Get a list of sections for a specific course."""
+    path: Dict[str, str] = event["pathParameters"]
+    class_: str = path["class"]
     data = []
-    for section in Section.type_index.query(hash_key="section"):
+    for section in Section.query(class_, Section.type_ == "section"):
         item = {"major": section.major, "name": section.name}
         if section.minor is not None:
             item["minor"]: int = section.minor
@@ -40,5 +41,3 @@ class Section(Model):
     name = UnicodeAttribute()
     video = UnicodeAttribute()
     timestamp = UnicodeAttribute(null=True)
-
-    type_index = TypeIndex()

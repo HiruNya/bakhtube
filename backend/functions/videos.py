@@ -10,9 +10,11 @@ from response import not_found, ok
 
 
 def get_video(event, callback) -> Dict:
-    uuid: str = event["pathParameters"]["id"]
+    path: Dict[str, str] = event["pathParameters"]
+    class_: str = path["class"]
+    uuid: str = path["id"]
     try:
-        video: Video = Video.get(hash_key="softeng250", range_key=uuid)
+        video: Video = Video.get(hash_key=class_, range_key=uuid)
     except DoesNotExist:
         return not_found()
     data = {}

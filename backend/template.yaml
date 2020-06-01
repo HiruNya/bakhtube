@@ -15,6 +15,8 @@ Globals:
     Domain:
       DomainName: bakhtube-api.hiru.dev
       CertificateArn: arn:aws:acm:ap-southeast-2:627081467109:certificate/4d61b25d-8131-4c4c-aad5-5749f65ea309
+    Cors:
+      AllowOrigin: "'*'" # Allow any origin
 
 Resources:
   GetSectionsFunction:

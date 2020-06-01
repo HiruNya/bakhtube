@@ -10,7 +10,10 @@ def response(status: int, data: Optional[Union[Dict, List]] = None) -> Dict:
         data = {}
     return {
         "statusCode": status,
-        "body": json.dumps(data)
+        "body": json.dumps(data),
+        "headers": {
+            "Access-Control-Allow-Origin": "*"
+        }
     }
 
 

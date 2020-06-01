@@ -85,6 +85,24 @@ Resources:
             Action:
               - "s3:GetObject"
             Resource: !Sub "${StaticSite.Arn}/*"
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: media.bakhtube.hiru.dev
+      WebsiteConfiguration:
+        ErrorDocument: index.html
+        IndexDocument: index.html
+  MediaBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MediaBucket
+      PolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal: '*'
+            Action:
+              - "s3:GetObject"
+            Resource: !Sub "${MediaBucket.Arn}/*"
   CloudFront:
     # Copied from: https://github.com/awslabs/serverless-application-model/issues/270#issuecomment-418928864
     Type: AWS::CloudFront::Distribution
@@ -94,6 +112,10 @@ Resources:
         Origins:
           - Id: StaticSiteOrigin
             DomainName: !GetAtt StaticSite.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+          - Id: MediaBucketOrigin
+            DomainName: !GetAtt MediaBucket.DomainName
             S3OriginConfig:
               OriginAccessIdentity: ""
         Aliases:
@@ -109,6 +131,19 @@ Resources:
             ResponseCode: 200
             ResponsePagePath: "/index.html"
             ErrorCachingMinTTL: 5
+        CacheBehaviors:
+          - TargetOriginId: MediaBucketOrigin
+            PathPattern: media/*
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            DefaultTTL: 5
+            MinTTL: 0
+            MaxTTL: 5
+            ForwardedValues:
+              QueryString: false
+            Compress: true
         DefaultCacheBehavior:
           TargetOriginId: StaticSiteOrigin
           ViewerProtocolPolicy: redirect-to-https

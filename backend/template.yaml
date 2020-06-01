@@ -13,7 +13,7 @@ Globals:
     Timeout: 3
   Api:
     Domain:
-      DomainName: bakhtube.hiru.dev
+      DomainName: bakhtube-api.hiru.dev
       CertificateArn: arn:aws:acm:ap-southeast-2:627081467109:certificate/4d61b25d-8131-4c4c-aad5-5749f65ea309
 
 Resources:
@@ -67,3 +67,61 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
+  StaticSite:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: bakhtube.hiru.dev
+      WebsiteConfiguration:
+        ErrorDocument: index.html
+        IndexDocument: index.html
+  StaticSitePolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticSite
+      PolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal: '*'
+            Action:
+              - "s3:GetObject"
+            Resource: !Sub "${StaticSite.Arn}/*"
+  CloudFront:
+    # Copied from: https://github.com/awslabs/serverless-application-model/issues/270#issuecomment-418928864
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Origins:
+          - Id: StaticSiteOrigin
+            DomainName: !GetAtt StaticSite.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+        Aliases:
+          - bakhtube.hiru.dev
+        DefaultRootObject: index.html
+        CustomErrorResponses:
+          # Note: This is required for handling direct links to paths such as /foo/bar in a React single page app
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: "/index.html"
+            ErrorCachingMinTTL: 5
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: "/index.html"
+            ErrorCachingMinTTL: 5
+        DefaultCacheBehavior:
+          TargetOriginId: StaticSiteOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+          DefaultTTL: 5
+          MinTTL: 0
+          MaxTTL: 5
+          ForwardedValues:
+            QueryString: false
+          Compress: true
+        HttpVersion: http2
+        ViewerCertificate:
+          AcmCertificateArn:  arn:aws:acm:us-east-1:627081467109:certificate/9e2f2c53-fae4-4fe2-b100-0f1ee7abb1c7 # Must use us-east-1 certificate
+          SslSupportMethod: sni-only

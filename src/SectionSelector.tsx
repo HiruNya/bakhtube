@@ -1,14 +1,42 @@
-import React, {ReactText} from "react"
 import {Tree} from "antd"
+import React, {ReactText} from "react"
+import {useSelector} from "react-redux";
 import {useHistory} from "react-router-dom"
+
+import {State} from "./redux/store";
+import {Section} from "./redux/sections";
 
 function SectionSelector() {
     const history = useHistory()
+    const course = useSelector((state: State) => {return state.course})
+    const sections = useSelector((state: State) => {return state.sections.get(course)})
+
+    let treeData: Array<DataNode>
+    let sectionMap = new Map<string, Section>()
+    if (sections) {
+        treeData = sections.map((section) => {
+            const key = section.major.toString()
+                + ((section.minor)?`.${section.major}`:'')
+                + ((section.minor && section.detail)?`.${section.detail}`:'')
+            sectionMap.set(key, section)
+            return {
+                title: section.name,
+                key,
+                children: [],
+            }
+        })
+    } else {
+        treeData = []
+    }
 
     function onSelect(keys: Array<ReactText>, _: {}) {
         if (keys.length !== 0) {
-            console.log(keys[0])
-            history.push(`/watch/${keys[0]}`)
+            const video = sectionMap.get(keys[0] as string)
+            if (video) {
+                history.push(`/watch/${video.video}`)
+            } else {
+                console.error(`Could not find section with key: ${keys[0]}`)
+            }
         }
     }
 
@@ -17,38 +45,10 @@ function SectionSelector() {
     );
 }
 
-const treeData = [
-    {
-        title: "Lecture Notes 1",
-        key: "1",
-        children: [
-            {
-                title: "Lecture Notes 1a",
-                key: "10",
-                children: [
-                    {
-                        title: "Lecture Notes 1a.1",
-                        key: "1-0-0"
-                    }
-                ]
-            },
-            {
-                title: "Lecture Notes 1b",
-                key: "1-1"
-            }
-        ]
-    },
-    {
-        title: "Lecture Notes 2",
-        key: "2",
-        children: [
-            {
-                title: "Hi",
-                key: "20",
-                children: []
-            }
-        ]
-    }
-];
+type DataNode = {
+    key: string,
+    title: string,
+    children: Array<DataNode>,
+}
 
 export {SectionSelector};

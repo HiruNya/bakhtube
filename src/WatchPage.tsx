@@ -6,18 +6,6 @@ import "video.js/dist/video-js.css"
 const {Content, Sider} = Layout
 const {Text} = Typography;
 
-const videoOptions = {
-    width: 720,
-    height: 600,
-    controls: true,
-    sources: [
-        {
-            src: '//vjs.zencdn.net/v/oceans.mp4',
-            type: 'video/mp4',
-        },
-    ],
-}
-
 function WatchPage() {
     const [player, setPlayer] = useState<videojs.Player | null>(null)
     function video(node: HTMLVideoElement) {
@@ -25,7 +13,7 @@ function WatchPage() {
             player.dispose()
             console.log("Video Disposed")
         } else if (node && !player) {
-            let player = videojs(node, videoOptions, () => {console.log("Video Engaged")})
+            let player = videojs(node, videoOptions(), () => {console.log("Video Engaged")})
             setPlayer(player)
         }
     }
@@ -36,7 +24,7 @@ function WatchPage() {
                 <Text strong>Select a Section</Text>
                 <SectionSelector/>
             </Sider>
-            <Content style={{padding: "10pt"}}>
+            <Content style={{paddingLeft: "10pt", paddingRight: "10pt", paddingBottom: "10pt"}}>
                 <PageHeader title="Section Name"/>
                 <div data-vjs-player>
                     <video ref={video} className="video-js"/>
@@ -44,6 +32,21 @@ function WatchPage() {
             </Content>
         </Layout>
     )
+}
+
+function videoOptions(src: string = "//vjs.zencdn.net/v/oceans.mp4") {
+    return {
+        width: 720,
+        height: 600,
+        controls: true,
+        sources: [
+            {
+                // src: '',
+                src,
+                type: 'video/mp4',
+            },
+        ],
+    }
 }
 
 export default WatchPage

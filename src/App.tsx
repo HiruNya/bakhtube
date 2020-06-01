@@ -3,10 +3,13 @@ import {BrowserRouter as Router, Route, Switch} from "react-router-dom"
 import WatchPage from "./WatchPage"
 import SelectPage from "./SelectPage"
 import {Layout, PageHeader} from "antd"
+import {Provider} from "react-redux";
+import {store} from "./redux/store";
 const {Content, Header} = Layout
 
 function App() {
     return (
+        <Provider store={store}>
         <Layout>
             <Header className="ant-layout-header">
                 <div>
@@ -26,6 +29,7 @@ function App() {
                 </Router>
             </Content>
         </Layout>
+        </Provider>
     );
 }
 

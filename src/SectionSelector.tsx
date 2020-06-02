@@ -1,15 +1,16 @@
 import {Tree} from "antd"
 import React, {ReactText} from "react"
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom"
 
 import {State} from "./redux/store";
-import {Section} from "./redux/sections";
+import {Section, setSection} from "./redux/sections";
 
 function SectionSelector() {
     const history = useHistory()
     const course = useSelector((state: State) => {return state.course})
-    const sections = useSelector((state: State) => {return state.sections.get(course)})
+    const sections = useSelector((state: State) => {return state.sections.sections.get(course)})
+    const dispatch = useDispatch();
 
     let treeData: Array<DataNode>
     let sectionMap = new Map<string, Section>()
@@ -34,6 +35,7 @@ function SectionSelector() {
             const video = sectionMap.get(keys[0] as string)
             if (video) {
                 history.push(`/watch/${video.video}`)
+                dispatch(setSection(video.name))
             } else {
                 console.error(`Could not find section with key: ${keys[0]}`)
             }

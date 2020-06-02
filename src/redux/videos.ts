@@ -6,16 +6,15 @@ type GetVideoAction = {
     type: typeof GET_VIDEO,
     course: string,
     video: Video,
+    videoId: string,
 }
 
-type Video = {
+export type Video = {
     id: string,
-    name: string,
-    video: string,
-    timestamp?: string,
-    major: number,
-    minor?: number,
-    detail?: number,
+    internal?: string,
+    subtitles?: string,
+    next?: string,
+    previous?: string,
 }
 
 function videoReducer(state: VideoMap = new Map(), action: GetVideoAction) {
@@ -29,18 +28,22 @@ function videoReducer(state: VideoMap = new Map(), action: GetVideoAction) {
             } else {
                 videos = new Map()
             }
-            videos.set(action.video.id, action.video)
+            videos.set(action.videoId, action.video)
             courses.set(action.course, videos)
             return courses
     }
     return state
 }
 
-function updateVideo(course: string, video: Video): GetVideoAction {
+function updateVideo(course: string, video: Video, videoId: string | undefined): GetVideoAction {
+    if (!videoId) {
+        videoId = video.id
+    }
     return {
         type: GET_VIDEO,
         course,
         video,
+        videoId,
     }
 }
 

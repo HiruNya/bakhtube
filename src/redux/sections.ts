@@ -1,14 +1,20 @@
-import api from "../api";
-import {store} from "./store";
-
 const GET_SECTIONS: string = "GET_SECTIONS"
+const SET_SECTION: string = "SET_SECTION"
 
-export type SectionMap = Map<string, Array<Section>>
+export type Sections = {
+    current: string | null,
+    sections: Map<string, Array<Section>>,
+}
 
 type GetSectionsAction = {
     type: typeof GET_SECTIONS,
     course: string,
     sections: Array<Section>,
+}
+
+type SetSectionAction = {
+    type: typeof SET_SECTION,
+    section: string,
 }
 
 export type Section = {
@@ -21,25 +27,21 @@ export type Section = {
     detail?: number,
 }
 
-const INITIAL_STATE: Map<string, Array<Section>> = (new Map()).set("softeng250", [
-    // {
-    //     id: "1",
-    //     name: "Section 1",
-    //     video: "1.mp4",
-    //     major: "1"
-    // }
-])
+const INITIAL_STATE: Sections = {
+    current: null,
+    sections: new Map(),
+}
 
-api("classes/softeng250/sections")
-    .then((resp) => store.dispatch(updateSections("softeng250", resp)))
-    .then(() => console.log("Done"))
-
-function sectionReducer(state: SectionMap = INITIAL_STATE, action: GetSectionsAction) {
+function sectionReducer(state: Sections = INITIAL_STATE, action: GetSectionsAction | SetSectionAction): Sections {
     switch (action.type) {
         case GET_SECTIONS:
-            const sections = new Map(state)
+            action = action as GetSectionsAction
+            const sections = new Map(state.sections)
             sections.set(action.course, action.sections)
-            return sections
+            return { ...state, sections }
+        case SET_SECTION:
+            action = action as SetSectionAction
+            return { ...state, current: action.section }
     }
     return state
 }
@@ -52,4 +54,11 @@ function updateSections(course: string, sections: Array<Section>): GetSectionsAc
     }
 }
 
-export { sectionReducer, updateSections }
+function setSection(section: string): SetSectionAction {
+    return  {
+        type: SET_SECTION,
+        section,
+    }
+}
+
+export { sectionReducer, setSection, updateSections }

@@ -1,5 +1,6 @@
-import React from 'react'
 import {Layout, PageHeader} from "antd"
+import React from 'react'
+
 import {SectionSelector} from "./SectionSelector"
 
 const {Content} = Layout;

@@ -85,6 +85,12 @@ Resources:
       WebsiteConfiguration:
         ErrorDocument: index.html
         IndexDocument: index.html
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins: ["'*'"]
+            AllowedMethods:
+              - "GET"
+              - "HEAD"
   MediaBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -136,6 +142,10 @@ Resources:
             MaxTTL: 5
             ForwardedValues:
               QueryString: false
+              Headers:
+                - "Access-Control-Request-Headers"
+                - "Access-Control-Request-Method"
+                - "Origin"
             Compress: true
         DefaultCacheBehavior:
           TargetOriginId: StaticSiteOrigin

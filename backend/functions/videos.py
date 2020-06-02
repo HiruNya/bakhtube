@@ -17,7 +17,7 @@ def get_video(event, callback) -> Dict:
         video: Video = Video.get(hash_key=class_, range_key=uuid)
     except DoesNotExist:
         return not_found()
-    data = {}
+    data = {"id": video.id_}
     if video.subtitles is not None:
         data["subtitles"] = video.subtitles
     if video.internal is not None:

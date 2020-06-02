@@ -14,11 +14,13 @@ def get(event, _context) -> Dict:
     class_: str = path["class"]
     data = []
     for section in Section.query(class_, Section.type_ == "section"):
-        item = {"major": section.major, "name": section.name}
+        item = {"major": section.major, "name": section.name, "video": section.video}
         if section.minor is not None:
             item["minor"]: int = section.minor
         if section.detail is not None:
             item["detail"]: int = section.detail
+        if section.timestamp is not None:
+            item["timestamp"]: int = section.timestamp
         data.append(item)
     return ok(data)
 

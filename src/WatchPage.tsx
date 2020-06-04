@@ -1,6 +1,6 @@
-import {Layout, PageHeader, Skeleton, Typography} from "antd"
-import React, {ReactElement} from "react"
-import {useRouteMatch} from "react-router-dom"
+import {Button, Col, Layout, PageHeader, Row, Skeleton, Space, Switch, Typography} from "antd"
+import React, {ReactElement, useState} from "react"
+import {useHistory, useRouteMatch} from "react-router-dom"
 import {SectionSelector} from "./SectionSelector"
 import {useDispatch, useSelector} from "react-redux";
 import {State} from "./redux/store";
@@ -15,7 +15,9 @@ function WatchPage() {
     const params = route?.params as {videoId: string};
     const videos = useSelector((state: State) => {return state.videos})
     const possibleCurrentVideo = videos.get(course)?.get(params.videoId)
+    const [autoplay, setAutoplay] = useState(true)
     const dispatch = useDispatch()
+    const history = useHistory()
 
     if (possibleCurrentVideo === undefined) { // Hasn't been retrieved yet
         dispatch(requestVideo(course, params.videoId))
@@ -34,16 +36,46 @@ function WatchPage() {
     const videoSource = `https://bakhtube.hiru.dev/media/${course}/videos/${currentVideo.internal}`
 
     return render(
-        <>
-        <PageHeader title={currentSection}/>
-        <video controls style={{width: "100%"}}>
-            <source src={videoSource} type="video/mp4"/>
-            { (subtitleSource) &&
-                <track label="English" kind="subtitles" srcLang="en" src={subtitleSource} default />
-            }
-        </video>
-        </>
-    )
+        <div style={{textAlign: "center"}}>
+            <Row>
+                <Col flex={1}>
+                    <PageHeader title={currentSection}/>
+                    <video controls style={{width: "100%", maxWidth: "720pt"}} onEnded={nextVideo(history, currentVideo, autoplay)}>
+                        <source src={videoSource} type="video/mp4"/>
+                        {(subtitleSource) &&
+                        <track label="English" kind="subtitles" srcLang="en" src={subtitleSource} default/>
+                        }
+                    </video>
+                </Col>
+            </Row>
+            <Row>
+                <Col flex={1}>
+                    <Button disabled={currentVideo.previous == null} onClick={goToVideo(history, currentVideo.previous)}>Previous</Button>
+                    <Button disabled={currentVideo.next  == null} onClick={goToVideo(history, currentVideo.next)}>Next</Button>
+                </Col>
+                <Col flex={1}>
+                    <Space>
+                    Autoplay
+                    <Switch checked={autoplay} onChange={(state) => setAutoplay(state)}/>
+                    </Space>
+                </Col>
+            </Row>
+        </div>
+    );
+}
+
+function goToVideo(history: any, video?: string) {
+    if (video) {
+        return () => history.push(`/watch/${video}+1`)
+    }
+    return () => {}
+}
+
+const nextVideo = (history: any, currentVideo: Video, autoplay: boolean) => {
+    if (autoplay) {
+        return goToVideo(history, currentVideo.next)
+    }
+    return () => {}
 }
 
 function render(element: ReactElement) {

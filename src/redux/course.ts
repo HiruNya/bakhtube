@@ -15,11 +15,11 @@ function courseReducer(state: Course = "softeng250", action: UpdateCourseAction)
     return state
 }
 
-function updateCourse(course: string): UpdateCourseAction {
-    return {
-        type: UPDATE_COURSE,
-        course,
-    }
-}
+// function updateCourse(course: string): UpdateCourseAction {
+//     return {
+//         type: UPDATE_COURSE,
+//         course,
+//     }
+// }
 
 export {courseReducer}

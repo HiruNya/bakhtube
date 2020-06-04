@@ -32,7 +32,9 @@ const INITIAL_STATE: Sections = {
     sections: new Map(),
 }
 
-function sectionReducer(state: Sections = INITIAL_STATE, action: GetSectionsAction | SetSectionAction): Sections {
+type SectionAction = GetSectionsAction | SetSectionAction
+
+function sectionReducer(state: Sections = INITIAL_STATE, action: SectionAction): Sections {
     switch (action.type) {
         case GET_SECTIONS:
             action = action as GetSectionsAction

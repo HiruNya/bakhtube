@@ -1,16 +1,14 @@
 import {Layout, PageHeader, Skeleton, Typography} from "antd"
-import React, {ReactElement, useState} from "react"
+import React, {ReactElement} from "react"
 import {useRouteMatch} from "react-router-dom"
 import {SectionSelector} from "./SectionSelector"
 import {useDispatch, useSelector} from "react-redux";
 import {State} from "./redux/store";
-import api from "./api";
-import {updateVideo, Video} from "./redux/videos";
+import {requestVideo, Video} from "./redux/videos";
 const {Content, Sider} = Layout
 const {Text, Title} = Typography;
 
 function WatchPage() {
-    const [loading, setLoading] = useState(false)
     const course = useSelector((state: State) => {return state.course})
     const route = useRouteMatch("/watch/:videoId")
     const currentSection = useSelector((state: State) => {return state.sections.current})
@@ -19,19 +17,12 @@ function WatchPage() {
     const possibleCurrentVideo = videos.get(course)?.get(params.videoId)
     const dispatch = useDispatch()
 
-    if (loading) {
-        return <Skeleton />
-    }
     if (possibleCurrentVideo === undefined) { // Hasn't been retrieved yet
-        console.log(videos)
-        api(`classes/${course}/videos/${params.videoId}`)
-            .then((video) => dispatch(updateVideo(course, video, params.videoId)))
-            .then(() => console.log("dispatched"))
-            .then(() => setLoading(false))
-        setLoading(true)
+        dispatch(requestVideo(course, params.videoId))
         return render(<Skeleton />)
-    }
-    if (possibleCurrentVideo === null) { // No such value exists
+    } else if (possibleCurrentVideo === "LOADING") { // Loading
+        return render(<Skeleton />)
+    } else if (possibleCurrentVideo === null) { // No such value exists
         return render(<Title level={3}>We can't seem to find that video</Title>)
     }
 

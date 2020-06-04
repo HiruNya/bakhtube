@@ -1,4 +1,5 @@
-import {createStore, combineReducers} from "redux"
+import {createStore, combineReducers, applyMiddleware} from "redux"
+import thunkMiddleware from "redux-thunk"
 
 import {Course, courseReducer} from "./course";
 import {Sections, sectionReducer, updateSections} from "./sections";
@@ -17,7 +18,7 @@ export type State = {
     videos: VideoMap,
 }
 
-const store = createStore(reducers)
+const store = createStore(reducers, applyMiddleware(thunkMiddleware))
 
 api("classes/softeng250/sections")
     .then((resp) => store.dispatch(updateSections("softeng250", resp)))

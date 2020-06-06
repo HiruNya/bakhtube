@@ -2,8 +2,8 @@ const GET_SECTIONS: string = "GET_SECTIONS"
 const SET_SECTION: string = "SET_SECTION"
 
 export type Sections = {
-    current: string | null,
-    sections: Map<string, Array<Section>>,
+    current: { name: string, timestamp?: number } | null,
+    sections: Map<string, Map<string, Section>>,
 }
 
 type GetSectionsAction = {
@@ -14,14 +14,15 @@ type GetSectionsAction = {
 
 type SetSectionAction = {
     type: typeof SET_SECTION,
-    section: string,
+    section: string | null,
+    timestamp?: number,
 }
 
 export type Section = {
     id: string,
     name: string,
     video: string,
-    timestamp?: string,
+    timestamp?: number,
     major: number,
     minor?: number,
     detail?: number,
@@ -39,11 +40,22 @@ function sectionReducer(state: Sections = INITIAL_STATE, action: SectionAction):
         case GET_SECTIONS:
             action = action as GetSectionsAction
             const sections = new Map(state.sections)
-            sections.set(action.course, action.sections)
+            const sectionMap = new Map()
+            action.sections.forEach((section) => {
+                let key = section.major.toString()
+                if (section.minor) { key = key + '.' + section.minor }
+                if (section.minor && section.detail) { key = key + '.' + section.detail }
+                sectionMap.set(key, section)
+            })
+            sections.set(action.course, sectionMap)
             return { ...state, sections }
         case SET_SECTION:
             action = action as SetSectionAction
-            return { ...state, current: action.section }
+            let current = null;
+            if (action.section) {
+                current = {name: action.section, timestamp: action.timestamp}
+            }
+            return {...state, current}
     }
     return state
 }
@@ -56,10 +68,11 @@ function updateSections(course: string, sections: Array<Section>): GetSectionsAc
     }
 }
 
-function setSection(section: string): SetSectionAction {
+function setSection(section: string | null, timestamp?: number): SetSectionAction {
     return  {
         type: SET_SECTION,
         section,
+        timestamp,
     }
 }
 

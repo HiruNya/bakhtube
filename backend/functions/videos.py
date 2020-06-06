@@ -25,7 +25,7 @@ def get_video(event, callback) -> Dict:
     if video.next is not None:
         data["next"] = video.next
     if video.previous is not None:
-        data["next"] = video.previous
+        data["previous"] = video.previous
     return ok(data)
 
 

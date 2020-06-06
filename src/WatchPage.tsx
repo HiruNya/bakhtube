@@ -5,6 +5,8 @@ import {SectionSelector} from "./SectionSelector"
 import {useDispatch, useSelector} from "react-redux";
 import {State} from "./redux/store";
 import {requestVideo, Video} from "./redux/videos";
+import {Dispatch} from "redux";
+import {setSection} from "./redux/sections";
 const {Content, Sider} = Layout
 const {Text, Title} = Typography;
 
@@ -36,24 +38,28 @@ function WatchPage() {
     const videoSource = `https://bakhtube.hiru.dev/media/${course}/videos/${currentVideo.internal}`
 
     return render(
-        <div style={{textAlign: "center"}}>
+        <div style={{margin: "0 auto", width: "50%"}}>
+        <div style={{width: "100%", maxWidth: "720pt"}}>
             <Row>
                 <Col flex={1}>
-                    <PageHeader title={currentSection}/>
-                    <video controls style={{width: "100%", maxWidth: "720pt"}} onEnded={nextVideo(history, currentVideo, autoplay)}>
-                        <source src={videoSource} type="video/mp4"/>
-                        {(subtitleSource) &&
-                        <track label="English" kind="subtitles" srcLang="en" src={subtitleSource} default/>
-                        }
+                    <PageHeader title={currentSection?.name}/>
+                    <video controls
+                        ref={onVideoCreated(videoSource, currentSection?.timestamp)}
+                        style={{width: "100%"}}
+                        onEnded={nextVideo(history, dispatch, currentVideo, autoplay)}>
+                            <source src={videoSource} type="video/mp4"/>
+                            {(subtitleSource) &&
+                            <track label="English" kind="subtitles" srcLang="en" src={subtitleSource} default/>
+                            }
                     </video>
                 </Col>
             </Row>
             <Row>
-                <Col flex={1}>
-                    <Button disabled={currentVideo.previous == null} onClick={goToVideo(history, currentVideo.previous)}>Previous</Button>
-                    <Button disabled={currentVideo.next  == null} onClick={goToVideo(history, currentVideo.next)}>Next</Button>
+                <Col flex={1} style={{textAlign: "left"}}>
+                    <Button disabled={currentVideo.previous == null} onClick={goToVideo(history, dispatch, currentVideo.previous)}>Previous</Button>
+                    <Button disabled={currentVideo.next  == null} onClick={goToVideo(history, dispatch, currentVideo.next)}>Next</Button>
                 </Col>
-                <Col flex={1}>
+                <Col flex={1} style={{textAlign: "right"}}>
                     <Space>
                     Autoplay
                     <Switch checked={autoplay} onChange={(state) => setAutoplay(state)}/>
@@ -61,19 +67,35 @@ function WatchPage() {
                 </Col>
             </Row>
         </div>
+        </div>
     );
 }
 
-function goToVideo(history: any, video?: string) {
+function onVideoCreated(videoSource: string, timestamp?: number | null): (video: HTMLVideoElement) => void {
+    const timestamp_ = (timestamp)? timestamp: 0
+    return (video) => {
+        if (video) {
+            if (video.src !== videoSource) {
+                video.src = videoSource
+            }
+            video.currentTime = timestamp_
+        }
+    }
+}
+
+function goToVideo(history: any, dispatch: Dispatch, video?: string) {
     if (video) {
-        return () => history.push(`/watch/${video}+1`)
+        return () => {
+            history.push(`/watch/${video}`)
+            dispatch(setSection(null, 0))
+        }
     }
     return () => {}
 }
 
-const nextVideo = (history: any, currentVideo: Video, autoplay: boolean) => {
+const nextVideo = (history: any, dispatch: Dispatch, currentVideo: Video, autoplay: boolean) => {
     if (autoplay) {
-        return goToVideo(history, currentVideo.next)
+        return goToVideo(history, dispatch, currentVideo.next)
     }
     return () => {}
 }

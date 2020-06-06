@@ -11,9 +11,9 @@ from response import ok
 def get(event, _context) -> Dict:
     """Get a list of sections for a specific course."""
     path: Dict[str, str] = event["pathParameters"]
-    class_: str = path["class"]
+    course: str = path["class"]
     data = []
-    for section in Section.query(class_, Section.type_ == "section"):
+    for section in Section.query(course, Section.type_ == "section"):
         item = {"major": section.major, "name": section.name, "video": section.video}
         if section.minor is not None:
             item["minor"]: int = section.minor
@@ -36,10 +36,10 @@ class Section(Model):
 
     course = UnicodeAttribute(hash_key=True)
     id_ = UnicodeAttribute(range_key=True, attr_name="id")
-    type_ = UnicodeAttribute(range_key=True, attr_name="type")
+    type_ = UnicodeAttribute(attr_name="type")
     major = NumberAttribute()
     minor = NumberAttribute(null=True)
     detail = NumberAttribute(null=True)
     name = UnicodeAttribute()
     video = UnicodeAttribute()
-    timestamp = UnicodeAttribute(null=True)
+    timestamp = NumberAttribute(null=True)

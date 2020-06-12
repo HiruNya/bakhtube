@@ -33,7 +33,7 @@ function SectionSelector() {
     }
 
     return (
-        <Tree treeData={treeData} onSelect={onSelect} selectable/>
+        <Tree treeData={treeData} onSelect={onSelect} defaultExpandAll selectable/>
     );
 }
 

@@ -103,7 +103,7 @@ const nextVideo = (history: any, dispatch: Dispatch, currentVideo: Video, autopl
 function render(element: ReactElement) {
     return (
         <Layout>
-            <Sider style={{padding: "10pt"}} collapsible collapsedWidth={0} trigger={null} breakpoint="md">
+            <Sider style={{padding: "10pt"}} width={"20%"} collapsible collapsedWidth={0} trigger={null} breakpoint="md">
                 <Text strong>Select a Section</Text>
                 <SectionSelector/>
             </Sider>

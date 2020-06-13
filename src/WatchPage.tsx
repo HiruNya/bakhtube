@@ -44,6 +44,7 @@ function WatchPage() {
                 <Col flex={1}>
                     <PageHeader title={currentSection?.name}/>
                     <video controls
+                        autoPlay={autoplay}
                         ref={onVideoCreated(videoSource, currentSection?.timestamp)}
                         style={{width: "100%"}}
                         onEnded={nextVideo(history, dispatch, currentVideo, autoplay)}>

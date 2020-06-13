@@ -8,9 +8,9 @@ import {Section, setSection} from "./redux/sections";
 
 function SectionSelector() {
     const history = useHistory()
-    const course = useSelector((state: State) => {return state.course})
-    const sectionsMap = useSelector((state: State) => {return state.sections.sections})
-    const dispatch = useDispatch();
+    const course = useSelector((state: State) => state.course)
+    const sectionsMap = useSelector((state: State) => state.sections.sections)
+    const dispatch = useDispatch()
 
     const maybeSections = sectionsMap.get(course)
     if (maybeSections == null) {
@@ -20,9 +20,14 @@ function SectionSelector() {
 
     const treeData = toTree(Array.from(sections))
 
+    const defaultExpandedKeys = treeData.map((node) => node.key)
 
     return (
-        <Tree treeData={treeData} onSelect={onSelect(sections, history, dispatch)} defaultExpandAll selectable/>
+        <Tree treeData={treeData}
+            defaultExpandedKeys={defaultExpandedKeys}
+            onSelect={onSelect(sections, history, dispatch)}
+            selectable
+        />
     );
 }
 

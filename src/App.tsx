@@ -1,5 +1,5 @@
 import React from "react"
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom"
+import {BrowserRouter as Router, Link, Route, Switch} from "react-router-dom"
 import WatchPage from "./WatchPage"
 import SelectPage from "./SelectPage"
 import {Col, Layout, Row} from "antd"
@@ -16,7 +16,9 @@ function App() {
             <Header className="ant-layout-header">
                 <Row gutter={30} >
                     <Col>
-                        <h1>BakhTube</h1>
+                        <Link to="/">
+                            <h1>BakhTube</h1>
+                        </Link>
                     </Col>
                     <Col flex={1}>
                         <SectionSearch />

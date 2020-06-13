@@ -20,20 +20,9 @@ function SectionSelector() {
 
     const treeData = toTree(Array.from(sections))
 
-    function onSelect(keys: Array<ReactText>, _: {}) {
-        if (keys.length !== 0) {
-            const video = sections.get(keys[0] as string)
-            if (video) {
-                history.push(`/watch/${video.video}`)
-                dispatch(setSection(video.name, video.timestamp))
-            } else {
-                console.error(`Could not find section with key: ${keys[0]}`)
-            }
-        }
-    }
 
     return (
-        <Tree treeData={treeData} onSelect={onSelect} defaultExpandAll selectable/>
+        <Tree treeData={treeData} onSelect={onSelect(sections, history, dispatch)} defaultExpandAll selectable/>
     );
 }
 
@@ -41,6 +30,24 @@ type DataNode = {
     key: string,
     title: string,
     children: Array<DataNode>,
+}
+
+function onSelect(sections: Map<string, Section>, history: any, dispatch: Function) {
+    return (keys: Array<ReactText> | ReactText, _: {}) => {
+        let key: string;
+        if (keys instanceof Array && keys.length !== 0) {
+            key = keys[0] as string
+        } else { // If it's not an array, it must be a single key
+            key = keys as string
+        }
+        const section = sections.get(key)
+        if (section) {
+            history.push(`/watch/${section.video}`)
+            dispatch(setSection(section.name, section.timestamp))
+        } else {
+            console.error(`Could not find section with key: ${key}`)
+        }
+    }
 }
 
 function toTree(sections: Array<[string, Section]>): Array<DataNode> {
@@ -95,4 +102,4 @@ function toTree(sections: Array<[string, Section]>): Array<DataNode> {
     return recursiveMap(hybridSections)
 }
 
-export {SectionSelector};
+export {onSelect, SectionSelector, toTree};

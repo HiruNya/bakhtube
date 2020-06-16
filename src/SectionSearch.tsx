@@ -1,31 +1,39 @@
-import {Skeleton, TreeSelect} from "antd";
-import React, {useState} from "react";
-import {Provider, useDispatch, useSelector} from "react-redux";
-import {State, store} from "./redux/store";
-import { useHistory } from "react-router-dom";
+import {Skeleton, TreeSelect} from "antd"
+import React, {useState} from "react"
+import {Provider, useDispatch, useSelector} from "react-redux"
+import {PersistGate} from "redux-persist/integration/react"
+import { useHistory } from "react-router-dom"
 
-import {onSelect, toTree} from "./SectionSelector";
+import {persistor, State, store} from "./redux/store"
+import {onSelect, toTree} from "./SectionSelector"
 
 function SectionSearch() {
     return (
         <Provider store={store}>
+        <PersistGate persistor={persistor}>
             <SectionSearchInner />
+        </PersistGate>
         </Provider>
     )
 }
 
 function SectionSearchInner() {
-    const [searchText, setSearchText] = useState<string | undefined>(undefined);
+    const [searchText, setSearchText] = useState<string | undefined>(undefined)
     const course = useSelector((state: State) => state.course)
-    const sectionsMap = useSelector(((state: State) => state.sections.sections));
+    const sectionsMap = useSelector(((state: State) => state.sections.sections))
+    const auth = useSelector((state: State) => state.auth)
     const history = useHistory()
     const dispatch = useDispatch()
 
-    const sectionsRaw = sectionsMap.get(course)
+    if (auth.state !== 'AUTHENTICATED') {
+        return <TreeSelect disabled />
+    }
+
+    const sectionsRaw = sectionsMap[course]
     if (!sectionsRaw) {
         return <Skeleton />
     }
-    const sections = recursiveMap(toTree(Array.from(sectionsRaw)))
+    const sections = recursiveMap(toTree(Array.from(Object.entries(sectionsRaw))))
 
     return (
         <TreeSelect

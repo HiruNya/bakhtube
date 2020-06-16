@@ -3,7 +3,7 @@ const SET_SECTION: string = "SET_SECTION"
 
 export type Sections = {
     current: { name: string, timestamp?: number } | null,
-    sections: Map<string, Map<string, Section>>,
+    sections: {[key:string]: {[key: string]: Section}},
 }
 
 type GetSectionsAction = {
@@ -30,24 +30,26 @@ export type Section = {
 
 const INITIAL_STATE: Sections = {
     current: null,
-    sections: new Map(),
+    sections: {},
 }
 
 type SectionAction = GetSectionsAction | SetSectionAction
 
 function sectionReducer(state: Sections = INITIAL_STATE, action: SectionAction): Sections {
+    console.log(state)
     switch (action.type) {
         case GET_SECTIONS:
             action = action as GetSectionsAction
-            const sections = new Map(state.sections)
-            const sectionMap = new Map()
+            console.log(state)
+            const sections = {...state.sections}
+            const sectionMap: {[key: string]: Section} = {}
             action.sections.forEach((section) => {
                 let key = section.major.toString()
                 if (section.minor) { key = key + '.' + section.minor }
                 if (section.minor && section.detail) { key = key + '.' + section.detail }
-                sectionMap.set(key, section)
+                sectionMap[key] = section
             })
-            sections.set(action.course, sectionMap)
+            sections[action.course] = sectionMap
             return { ...state, sections }
         case SET_SECTION:
             action = action as SetSectionAction

@@ -1,12 +1,12 @@
 import {AnyAction} from "redux"
 import {ThunkDispatch} from "redux-thunk"
-import api from "../api";
+import api from "../api"
 
 const GET_VIDEO: string = "GET_VIDEO"
 const LOADING_VIDEO: string = "LOADING_VIDEO"
 const IS_LOADING: string = "LOADING"
 
-export type VideoMap = Map<string, Map<string, Video | typeof IS_LOADING>>
+export type VideoMap = {[key: string]: {[key: string]: Video | typeof IS_LOADING}}
 
 type GetVideoAction = {
     type: typeof GET_VIDEO,
@@ -31,35 +31,35 @@ export type Video = {
 
 type VideoActions = GetVideoAction | LoadingVideoAction
 
-function videoReducer(state: VideoMap = new Map(), action: VideoActions) {
+function videoReducer(state: VideoMap = {}, action: VideoActions) {
     switch (action.type) {
         case LOADING_VIDEO: {
-            const courses = new Map(state)
-            const course = courses.get(action.course)
+            const courses = {...state}
+            const course = courses[action.course]
             let videos;
             if (course) {
-                videos = new Map(course)
+                videos = {...course}
             } else {
-                videos = new Map()
+                videos = {}
             }
-            if (videos.get(action.videoId) == null) {
-                videos.set(action.videoId, IS_LOADING)
+            if (videos[action.videoId] == null) {
+                videos[action.videoId] = IS_LOADING
             }
-            courses.set(action.course, videos)
+            courses[action.course] = videos
             return courses
         }
         case GET_VIDEO: {
             const getAction = action as GetVideoAction
-            const courses = new Map(state)
-            const course = courses.get(getAction.course)
+            const courses = {...state}
+            const course = courses[getAction.course]
             let videos;
             if (course) {
-                videos = new Map(course)
+                videos = {...course}
             } else {
-                videos = new Map()
+                videos = {}
             }
-            videos.set(getAction.videoId, getAction.video)
-            courses.set(getAction.course, videos)
+            videos[getAction.videoId] = getAction.video
+            courses[getAction.course] = videos
             return courses
         }
     }
@@ -89,8 +89,14 @@ function loadingVideo(course: string, videoId: string): LoadingVideoAction {
 function requestVideo(course: string, videoId: string) {
     return (dispatch: ThunkDispatch<{}, {}, AnyAction>) => {
         dispatch(loadingVideo(course, videoId))
-        api(`classes/${course}/videos/${videoId}`)
-            .then((video) => dispatch(updateVideo(course, video, videoId)))
+        api<Video, {}>(`classes/${course}/videos/${videoId}`)
+            .then((video) => {
+                if (video != null) {
+                    dispatch(updateVideo(course, video, videoId))
+                } else {
+                    console.error(`Could not find video '${videoId}' in '${course}'`)
+                }
+            })
     }
 }
 

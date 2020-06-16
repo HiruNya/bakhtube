@@ -1,16 +1,20 @@
+import {Col, Layout, Row, Spin} from "antd"
 import React from "react"
-import {BrowserRouter as Router, Link, Route, Switch} from "react-router-dom"
-import WatchPage from "./WatchPage"
-import SelectPage from "./SelectPage"
-import {Col, Layout, Row} from "antd"
+import {PersistGate} from "redux-persist/integration/react"
 import {Provider} from "react-redux"
-import {store} from "./redux/store"
+import {BrowserRouter as Router, Link, Route, Switch} from "react-router-dom"
+
+import {persistor, store} from "./redux/store"
+import {Login, Verify} from "./login"
+import SelectPage from "./SelectPage"
 import SectionSearch from "./SectionSearch"
+import WatchPage from "./WatchPage"
 const {Content, Header} = Layout
 
 function App() {
     return (
         <Provider store={store}>
+        <PersistGate loading={<Spin />} persistor={persistor}>
             <Router>
             <Layout>
             <Header className="ant-layout-header">
@@ -30,6 +34,12 @@ function App() {
                         <Route path="/watch/:video">
                             <WatchPage />
                         </Route>
+                        <Route path="/login">
+                            <Login />
+                        </Route>
+                        <Route path="/verify">
+                            <Verify />
+                        </Route>
                         <Route path="/">
                             <SelectPage />
                         </Route>
@@ -37,7 +47,8 @@ function App() {
             </Content>
             </Layout>
             </Router>
-</Provider>
+        </PersistGate>
+        </Provider>
     );
 }
 

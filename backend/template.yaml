@@ -5,18 +5,34 @@ Description: >
 
   Sample SAM Template for bakhtube
 
+Parameters:
+  AuthSecret:
+    Type: String
+  GoogleClientId:
+    Type: String
+  GoogleClientSecret:
+    Type: String
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Runtime: python3.8
     CodeUri: functions/
     Timeout: 3
+    Environment:
+      Variables:
+        AUTH_REDIRECT_URL: "https://bakhtube.hiru.dev/verify"
+        AUTH_SECRET: !Ref AuthSecret
+        GOOGLE_CLIENT_ID: !Ref GoogleClientId
+        GOOGLE_CLIENT_SECRET: !Ref GoogleClientSecret
   Api:
     Domain:
       DomainName: bakhtube-api.hiru.dev
       CertificateArn: arn:aws:acm:ap-southeast-2:627081467109:certificate/4d61b25d-8131-4c4c-aad5-5749f65ea309
     Cors:
       AllowOrigin: "'*'" # Allow any origin
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
 
 Resources:
   GetSectionsFunction:
@@ -41,6 +57,30 @@ Resources:
           Properties:
             Path: /classes/{class}/videos/{id}
             Method: get
+      Policies:
+        - AmazonDynamoDBFullAccess
+  Auth:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: auth.auth
+      Events:
+        GetSections:
+          Type: Api
+          Properties:
+            Path: /auth
+            Method: get
+      Policies:
+        - AmazonDynamoDBFullAccess
+  AuthVerify:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: auth.verify
+      Events:
+        GetSections:
+          Type: Api
+          Properties:
+            Path: /auth/verify
+            Method: post
       Policies:
         - AmazonDynamoDBFullAccess
   DynamoDBTable:

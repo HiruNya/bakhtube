@@ -1,10 +1,10 @@
 import {Skeleton, Tree} from "antd"
 import React, {ReactText} from "react"
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux"
 import {useHistory} from "react-router-dom"
 
-import {State} from "./redux/store";
-import {Section, setSection} from "./redux/sections";
+import {State} from "./redux/store"
+import {Section, setSection} from "./redux/sections"
 
 function SectionSelector() {
     const history = useHistory()
@@ -12,13 +12,12 @@ function SectionSelector() {
     const sectionsMap = useSelector((state: State) => state.sections.sections)
     const dispatch = useDispatch()
 
-    const maybeSections = sectionsMap.get(course)
-    if (maybeSections == null) {
+    const sections = sectionsMap[course]
+    if (sections == null) {
         return <Skeleton />
     }
-    const sections = maybeSections as Map<string, Section>
 
-    const treeData = toTree(Array.from(sections))
+    const treeData = toTree(Object.entries(sections))
 
     const defaultExpandedKeys = treeData.map((node) => node.key)
 
@@ -37,7 +36,7 @@ type DataNode = {
     children: Array<DataNode>,
 }
 
-function onSelect(sections: Map<string, Section>, history: any, dispatch: Function) {
+function onSelect(sections: {[key: string]: Section}, history: any, dispatch: Function) {
     return (keys: Array<ReactText> | ReactText, _: {}) => {
         let key: string;
         if (keys instanceof Array && keys.length !== 0) {
@@ -45,7 +44,7 @@ function onSelect(sections: Map<string, Section>, history: any, dispatch: Functi
         } else { // If it's not an array, it must be a single key
             key = keys as string
         }
-        const section = sections.get(key)
+        const section = sections[key]
         if (section) {
             history.push(`/watch/${section.video}`)
             dispatch(setSection(section.name, section.timestamp))
@@ -107,4 +106,4 @@ function toTree(sections: Array<[string, Section]>): Array<DataNode> {
     return recursiveMap(hybridSections)
 }
 
-export {onSelect, SectionSelector, toTree};
+export {onSelect, SectionSelector, toTree}

@@ -2,21 +2,21 @@ import {Button, Col, Layout, PageHeader, Row, Skeleton, Space, Switch, Typograph
 import React, {ReactElement, useState} from "react"
 import {useHistory, useRouteMatch} from "react-router-dom"
 import {SectionSelector} from "./SectionSelector"
-import {useDispatch, useSelector} from "react-redux";
-import {State} from "./redux/store";
-import {requestVideo, Video} from "./redux/videos";
-import {Dispatch} from "redux";
-import {setSection} from "./redux/sections";
+import {useDispatch, useSelector} from "react-redux"
+import {State} from "./redux/store"
+import {requestVideo, Video} from "./redux/videos"
+import {Dispatch} from "redux"
+import {setSection} from "./redux/sections"
 const {Content, Sider} = Layout
-const {Text, Title} = Typography;
+const {Text, Title} = Typography
 
 function WatchPage() {
     const course = useSelector((state: State) => {return state.course})
     const route = useRouteMatch("/watch/:videoId")
     const currentSection = useSelector((state: State) => {return state.sections.current})
-    const params = route?.params as {videoId: string};
+    const params = route?.params as {videoId: string}
     const videos = useSelector((state: State) => {return state.videos})
-    const possibleCurrentVideo = videos.get(course)?.get(params.videoId)
+    const possibleCurrentVideo = videos[course]?.[params.videoId]
     const [autoplay, setAutoplay] = useState(true)
     const dispatch = useDispatch()
     const history = useHistory()

@@ -36,11 +36,9 @@ const INITIAL_STATE: Sections = {
 type SectionAction = GetSectionsAction | SetSectionAction
 
 function sectionReducer(state: Sections = INITIAL_STATE, action: SectionAction): Sections {
-    console.log(state)
     switch (action.type) {
         case GET_SECTIONS:
             action = action as GetSectionsAction
-            console.log(state)
             const sections = {...state.sections}
             const sectionMap: {[key: string]: Section} = {}
             action.sections.forEach((section) => {

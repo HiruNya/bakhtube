@@ -1,7 +1,9 @@
 import {ThunkDispatch} from "redux-thunk"
 
-import api from "../api"
+import api, {api_array} from "../api"
 import jwt_decode from "jwt-decode"
+import {Section, updateSections} from "./sections";
+import {store} from "./store";
 
 const START_AUTH_ACTION = "START_AUTH_ACTION"
 const VERIFYING = "VERIFYING"
@@ -41,6 +43,14 @@ function authReducer(state: Auth = {state: 'NOT_AUTHENTICATED'}, action: AuthAct
             break;
         case AUTHENTICATED:
             const lastState = (state.state !== "NOT_AUTHENTICATED")? state.lastState: undefined
+            api_array<Section>("classes/softeng250/sections", action.token)
+                .then((resp) => {
+                    if (resp) {
+                        store.dispatch(updateSections("softeng250", resp))
+                    } else {
+                        console.error("Sections not found.")
+                    }
+                })
             const {email, exp} = jwt_decode(action.token)
             return {state: 'AUTHENTICATED', token: action.token, email, exp, lastState}
         case NOT_AUTHENTICATED:

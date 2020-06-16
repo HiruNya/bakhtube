@@ -23,7 +23,6 @@ function Login() {
                     console.log("Could not find authentication url.")
                 }
             })
-            .then(console.log)
     }
 
     let component
@@ -81,15 +80,12 @@ function Verify() {
         if (authState.lastState) {
             history.replace(authState.lastState)
         } else {
-            if (authState.lastState) {
-                history.replace(authState.lastState)
-            } else {
-                return (
-                    <div style={CENTER_DIV_STYLE}>
-                        <Text strong>You're verified!</Text>
-                    </div>
-                )
-            }
+            // Should redirect to previous path but that can be implemented later
+            return (
+                <div style={CENTER_DIV_STYLE}>
+                    <Text strong>You're verified!</Text>
+                </div>
+            )
         }
     } else if (authState.state === 'VERIFYING' && !authState.verifying) {
         dispatch(verify(code, authState.verify, state))

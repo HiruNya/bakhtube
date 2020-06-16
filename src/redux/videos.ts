@@ -86,10 +86,10 @@ function loadingVideo(course: string, videoId: string): LoadingVideoAction {
     }
 }
 
-function requestVideo(course: string, videoId: string) {
+function requestVideo(course: string, videoId: string, token: string) {
     return (dispatch: ThunkDispatch<{}, {}, AnyAction>) => {
         dispatch(loadingVideo(course, videoId))
-        api<Video, {}>(`classes/${course}/videos/${videoId}`)
+        api<Video, {}>(`classes/${course}/videos/${videoId}`, null, token)
             .then((video) => {
                 if (video != null) {
                     dispatch(updateVideo(course, video, videoId))

@@ -4,6 +4,7 @@ from typing import Dict
 from pynamodb.models import Model
 from pynamodb.attributes import NumberAttribute, UnicodeAttribute
 
+from auth import validate_request, Token
 from config import REGION, SECTION_TABLE_NAME
 from response import ok
 
@@ -12,6 +13,8 @@ def get(event, _context) -> Dict:
     """Get a list of sections for a specific course."""
     path: Dict[str, str] = event["pathParameters"]
     course: str = path["class"]
+    if type(token := validate_request(event)) != Token:
+        return token
     data = []
     for section in Section.query(course, Section.type_ == "section"):
         item = {"major": section.major, "name": section.name, "video": section.video}

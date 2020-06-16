@@ -10,10 +10,11 @@ function SectionSelector() {
     const history = useHistory()
     const course = useSelector((state: State) => state.course)
     const sectionsMap = useSelector((state: State) => state.sections.sections)
+    const auth = useSelector((state: State) => state.auth)
     const dispatch = useDispatch()
 
     const sections = sectionsMap[course]
-    if (sections == null) {
+    if (sections == null || auth.state !== 'AUTHENTICATED') {
         return <Skeleton />
     }
 

@@ -5,6 +5,7 @@ from pynamodb.models import Model
 from pynamodb.exceptions import DoesNotExist
 from typing import Dict
 
+from auth import validate_request, Token
 from config import VIDEO_TABLE_NAME, REGION
 from response import not_found, ok
 
@@ -13,6 +14,8 @@ def get_video(event, callback) -> Dict:
     path: Dict[str, str] = event["pathParameters"]
     class_: str = path["class"]
     uuid: str = path["id"]
+    if type(token := validate_request(event)) != Token:
+        return token
     try:
         video: Video = Video.get(hash_key=class_, range_key=uuid)
     except DoesNotExist:

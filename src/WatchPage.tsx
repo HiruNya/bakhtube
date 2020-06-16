@@ -20,9 +20,16 @@ function WatchPage() {
     const [autoplay, setAutoplay] = useState(true)
     const dispatch = useDispatch()
     const history = useHistory()
+    const auth = useSelector((state: State) => state.auth)
 
+    let token: string
+    if (auth.state === 'AUTHENTICATED') {
+        token = auth.token
+    } else {
+        history.replace("/login")
+    }
     if (possibleCurrentVideo === undefined) { // Hasn't been retrieved yet
-        dispatch(requestVideo(course, params.videoId))
+        dispatch(requestVideo(course, params.videoId, token!))
         return render(<Skeleton />)
     } else if (possibleCurrentVideo === "LOADING") { // Loading
         return render(<Skeleton />)

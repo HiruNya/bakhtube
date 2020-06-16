@@ -4,9 +4,8 @@ import storageSession from "redux-persist/lib/storage/session"
 import thunkMiddleware from "redux-thunk"
 
 import {Course, courseReducer} from "./course"
-import {Sections, sectionReducer, updateSections, Section} from "./sections"
+import {Sections, sectionReducer} from "./sections"
 import {VideoMap, videoReducer} from "./videos"
-import {api_array} from "../api"
 import {Auth, authReducer} from "./auth"
 
 const reducers = persistCombineReducers<{}, any>({key: 'root', storage: storageSession}, {
@@ -25,14 +24,5 @@ export type State = {
 
 const store = createStore(reducers, applyMiddleware(thunkMiddleware))
 const persistor = persistStore(store)
-
-api_array<Section>("classes/softeng250/sections")
-    .then((resp) => {
-        if (resp) {
-            store.dispatch(updateSections("softeng250", resp))
-        } else {
-            console.error("Sections not found.")
-        }
-    })
 
 export {persistor, store}

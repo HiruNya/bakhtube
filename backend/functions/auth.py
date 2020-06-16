@@ -1,11 +1,12 @@
 import json
+from dataclasses import dataclass
 from hashlib import sha256
 from hmac import compare_digest, digest
 import jwt
 from os import environ
 import requests
 from time import time
-from typing import Dict
+from typing import Dict, Optional, Union
 import urllib.parse
 from uuid import uuid4
 
@@ -61,11 +62,39 @@ def verify(event, _context):
         expiry = int(time() + 24*60*60)
         token = jwt.encode(payload={
             'email': token['email'],
-            'expiry': expiry,
+            'exp': expiry,
         }, key=AUTH_SECRET, algorithm='HS256').decode('utf-8')
         return ok({"token": token})
     else:
         return bad_request("Verification code did not match state.")
+
+
+@dataclass
+class Token:
+    email: str
+    expiry: int
+
+
+def validate(token: str) -> Union[Token, Dict[str, str]]:
+    try:
+        token = jwt.decode(token, key=AUTH_SECRET, algorithms='HS256', verify=True)
+        return Token(email=token['email'], expiry=token['exp'])
+    except jwt.exceptions.ExpiredSignature:
+        return bad_request("The token has expired.")
+    except jwt.exceptions.InvalidTokenError as error:
+        return bad_request(f"Invalid token: {error}")
+    except Exception as error:
+        return bad_request(f"Error parsing token: {error}")
+
+
+def validate_request(request: Dict[str, Dict[str, str]]) -> Union[Token, Dict[str, str]]:
+    headers = request['headers']
+    try:
+        bearer = headers['Authorization']
+    except KeyError:
+        return bad_request("No `Authorization` header was provided.")
+    _, token = bearer.split(sep=' ', maxsplit=1)
+    return validate(token)
 
 
 def verify_email(email: str) -> bool:

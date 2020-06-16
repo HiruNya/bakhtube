@@ -1,10 +1,10 @@
 import {Col, Layout, Row, Spin} from "antd"
-import React from "react"
+import React, {ReactElement} from "react"
 import {PersistGate} from "redux-persist/integration/react"
-import {Provider} from "react-redux"
+import {Provider, useSelector} from "react-redux"
 import {BrowserRouter as Router, Link, Route, Switch} from "react-router-dom"
 
-import {persistor, store} from "./redux/store"
+import {persistor, State, store} from "./redux/store"
 import {Login, Verify} from "./login"
 import SelectPage from "./SelectPage"
 import SectionSearch from "./SectionSearch"
@@ -30,26 +30,40 @@ function App() {
                 </Row>
             </Header>
             <Content>
+                <LoginGuard>
                     <Switch>
                         <Route path="/watch/:video">
                             <WatchPage />
-                        </Route>
-                        <Route path="/login">
-                            <Login />
-                        </Route>
-                        <Route path="/verify">
-                            <Verify />
                         </Route>
                         <Route path="/">
                             <SelectPage />
                         </Route>
                     </Switch>
+                </LoginGuard>
             </Content>
             </Layout>
             </Router>
         </PersistGate>
         </Provider>
     );
+}
+
+function LoginGuard(props: {children: ReactElement, redirect?: string}): ReactElement {
+    const auth = useSelector((state: State) => state.auth)
+    if (auth.state !== 'AUTHENTICATED') {
+        return (
+            <Switch>
+                <Route path="/verify">
+                    <Verify />
+                </Route>
+                <Route path="/">
+                    <Login />
+                </Route>
+            </Switch>
+        )
+    } else {
+        return props.children
+    }
 }
 
 export default App;

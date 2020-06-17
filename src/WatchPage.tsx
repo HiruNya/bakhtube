@@ -1,12 +1,13 @@
-import {Button, Col, Layout, PageHeader, Row, Skeleton, Space, Switch, Typography} from "antd"
-import React, {ReactElement, useState} from "react"
+import {Button, Col, Layout, PageHeader, Row, Skeleton, Slider, Space, Switch, Typography} from "antd"
+import React, {MutableRefObject, ReactElement, SetStateAction, useRef, useState} from "react"
 import {useHistory, useRouteMatch} from "react-router-dom"
 import {SectionSelector} from "./SectionSelector"
 import {useDispatch, useSelector} from "react-redux"
-import {State} from "./redux/store"
+import {State, store} from "./redux/store"
 import {requestVideo, Video} from "./redux/videos"
 import {Dispatch} from "redux"
 import {setSection} from "./redux/sections"
+import {setSpeed} from "./redux/playerSettings";
 const {Content, Sider} = Layout
 const {Text, Title} = Typography
 
@@ -17,6 +18,7 @@ function WatchPage() {
     const params = route?.params as {videoId: string}
     const videos = useSelector((state: State) => {return state.videos})
     const possibleCurrentVideo = videos[course]?.[params.videoId]
+    const videoElement = useRef<HTMLVideoElement | null>(null)
     const [autoplay, setAutoplay] = useState(true)
     const dispatch = useDispatch()
     const history = useHistory()
@@ -52,7 +54,7 @@ function WatchPage() {
                     <PageHeader title={currentSection?.name}/>
                     <video controls
                         autoPlay={autoplay}
-                        ref={onVideoCreated(videoSource, currentSection?.timestamp)}
+                        ref={onVideoCreated(videoElement, videoSource, currentSection?.timestamp)}
                         style={{width: "100%"}}
                         onEnded={nextVideo(history, dispatch, currentVideo, autoplay)}>
                             <source src={videoSource} type="video/mp4"/>
@@ -62,14 +64,17 @@ function WatchPage() {
                     </video>
                 </Col>
             </Row>
-            <Row>
-                <Col flex={1} style={{textAlign: "left"}}>
+            <Row gutter={30}>
+                <Col style={{textAlign: "left"}}>
                     <Button disabled={currentVideo.previous == null} onClick={goToVideo(history, dispatch, currentVideo.previous)}>Previous</Button>
                     <Button disabled={currentVideo.next  == null} onClick={goToVideo(history, dispatch, currentVideo.next)}>Next</Button>
                 </Col>
-                <Col flex={1} style={{textAlign: "right"}}>
+                <Col flex="auto">
+                    <SpeedSlider videoRef={videoElement} />
+                </Col>
+                <Col style={{textAlign: "right", margin: "auto"}}>
                     <Space>
-                    Autoplay
+                    <Text>Autoplay</Text>
                     <Switch checked={autoplay} onChange={(state) => setAutoplay(state)}/>
                     </Space>
                 </Col>
@@ -79,7 +84,7 @@ function WatchPage() {
     );
 }
 
-function onVideoCreated(videoSource: string, timestamp?: number | null): (video: HTMLVideoElement) => void {
+function onVideoCreated(videoElement: MutableRefObject<HTMLVideoElement | any>, videoSource: string, timestamp?: number | null): (video: HTMLVideoElement) => void {
     const timestamp_ = (timestamp)? timestamp: 0
     return (video) => {
         if (video) {
@@ -87,6 +92,8 @@ function onVideoCreated(videoSource: string, timestamp?: number | null): (video:
                 video.src = videoSource
             }
             video.currentTime = timestamp_
+            video.playbackRate = (store.getState() as unknown as State).playerSettings.speed
+            videoElement.current = video
         }
     }
 }
@@ -101,11 +108,57 @@ function goToVideo(history: any, dispatch: Dispatch, video?: string) {
     return () => {}
 }
 
-const nextVideo = (history: any, dispatch: Dispatch, currentVideo: Video, autoplay: boolean) => {
+function nextVideo(history: any, dispatch: Dispatch, currentVideo: Video, autoplay: boolean) {
     if (autoplay) {
         return goToVideo(history, dispatch, currentVideo.next)
     }
     return () => {}
+}
+
+function SpeedSlider(props: {videoRef: MutableRefObject<HTMLVideoElement | null>}): ReactElement {
+    const [speed, setSpeed] = useState((store.getState() as unknown as State).playerSettings.speed)
+    const dispatch = useDispatch()
+
+    return (
+        <Row style={{paddingRight: "1%"}}>
+            <Col style={{margin: "auto"}}>
+                <Text style={{}}>Speed</Text>
+            </Col>
+            <Col flex="auto">
+                <Slider
+                    min={0.1} max={4.0}
+                    step={0.1}
+                    value={speed}
+                    onChange={setPlaybackRate(setSpeed, props.videoRef)}
+                    onAfterChange={onAfterChange(dispatch)}
+                    style={{width: "95%"}}
+                />
+            </Col>
+        </Row>
+    )
+}
+
+function setPlaybackRate(setter: React.Dispatch<SetStateAction<number>>, videoElement: MutableRefObject<HTMLVideoElement | null>): (value: number | [number, number]) => void {
+    return (value) => {
+        if (typeof value == "number") {
+            setter(value)
+            if (videoElement.current != null) {
+                videoElement.current.playbackRate = value
+            }
+        } else {
+            console.error("Could not set playback rate: expected value of type `number`.")
+        }
+    }
+}
+
+function onAfterChange (dispatch: Dispatch): (value: number | [number, number]) => void {
+    return (value) => {
+        if (typeof value == "number") {
+            dispatch(setSpeed(value))
+        } else {
+            console.error("Could  not set initial playback speed: expected value of type `number`.")
+        }
+    }
 }
 
 function render(element: ReactElement) {

@@ -7,10 +7,12 @@ import {Course, courseReducer} from "./course"
 import {Sections, sectionReducer} from "./sections"
 import {VideoMap, videoReducer} from "./videos"
 import {Auth, authReducer} from "./auth"
+import {PlayerSettings, playerSettingsReducer} from "./playerSettings";
 
 const reducers = persistCombineReducers<{}, any>({key: 'root', storage: storageSession}, {
     auth: authReducer,
     course: courseReducer,
+    playerSettings: playerSettingsReducer,
     sections: sectionReducer,
     videos: videoReducer,
 });
@@ -18,6 +20,7 @@ const reducers = persistCombineReducers<{}, any>({key: 'root', storage: storageS
 export type State = {
     auth: Auth,
     course: Course,
+    playerSettings: PlayerSettings,
     sections: Sections,
     videos: VideoMap,
 }

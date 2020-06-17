@@ -38,7 +38,7 @@ function Login() {
         && <Alert message={authState.error} type={'error'} showIcon /> }
 
         <div style={CENTER_DIV_STYLE}>
-            <Text>To access this site you'll need to login into <Text strong>Google</Text> with your <Text>University of Auckland</Text> account.</Text>
+            <Text>To access this site you'll need to login into <Text strong>Google</Text> with your <Text strong>University of Auckland</Text> account.</Text>
             <p/>
             {component}
         </div>

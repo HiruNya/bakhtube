@@ -1,68 +1,40 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Bakhtube
 
-## Available Scripts
+This is a small website I made to learn React
+but also because during the Covid19 lockdown all my University courses went online.
+Unfortunately some of the lecture recordings would have expired from the zoom cloud before the exams
+so I decided to make a lecture viewing website that would host the expired videos.
 
-In the project directory, you can run:
+This repo holds both the frontend, in React and Typescript, and the backend, in Python.
+If you wish to setup this website then you need an AWS account
+as the backend is hosted on Lambda and uses DynamoDB.
+You would also need the [AWS SAM cli](https://aws.amazon.com/serverless/sam/)
+as it is used to deploy the backend stack to AWS.
 
-### `yarn start`
+This also requires Google authentication (because all University of Auckland accounts have a Google account attached to them)
+so you will need to register the account in the Google Developer Console.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Make sure to configure the `backend/template.yaml` file and `backend/functions/config.py`
+to work with your specific AWS resources.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Disclaimer:
+I wanted to finish this as soon as possible, as my exams were coming up,
+so a lot of this was rushed, and the code quality is poor.
 
-### `yarn test`
+## Screenshots
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Login Page
 
-### `yarn build`
+![](screenshots/login_page.png)
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Select a Section
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+![](screenshots/sections_page.png)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Watching a Lecture
 
-### `yarn eject`
+![](screenshots/watch_page.png)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Search for a Section
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+![](screenshots/search.png)
